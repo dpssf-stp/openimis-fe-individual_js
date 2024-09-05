@@ -1,4 +1,6 @@
 export const CONTAINS_LOOKUP = 'Icontains';
+export const IEXACT_LOOKUP = 'Iexact';
+export const YEAR_LOOKUP = 'Year';
 export const DEFAULT_DEBOUNCE_TIME = 500;
 export const DEFAULT_PAGE_SIZE = 10;
 export const EMPTY_STRING = '';
@@ -25,6 +27,7 @@ export const BENEFIT_PLANS_LIST_TAB_VALUE = 'BenefitPlansListTab';
 export const INDIVIDUALS_LIST_TAB_VALUE = 'IndividualsListTab';
 export const INDIVIDUAL_CHANGELOG_TAB_VALUE = 'IndividualChangelogTab';
 export const INDIVIDUAL_TASK_TAB_VALUE = 'IndividualTaskTab';
+export const GROUP_LIST_TAB_VALUE = 'GroupListTab';
 export const GROUP_CHANGELOG_TAB_VALUE = 'GroupChangelogTab';
 export const GROUP_INDIVIDUAL_HISTORY_TAB_VALUE = 'GroupIndividualHistoryTab';
 export const GROUP_TASK_TAB_VALUE = 'GroupTaskTab';
@@ -41,12 +44,33 @@ export const TASK_CONTRIBUTION_KEY = 'tasksManagement.tasks';
 export const BENEFITS_CONTRIBUTION_KEY = 'payroll.benefitConsumptionPayrollSearcher';
 export const GROUP_ROUTE_GROUP = 'individual.route.group';
 
+export const INDIVIDUAL_SEX = {
+  MALE: 'M',
+  FEMALE: 'F'
+}
+
+export const INDIVIDUAL_SEX_LIST = [
+  INDIVIDUAL_SEX.MALE, INDIVIDUAL_SEX.FEMALE
+]
+
 export const BENEFICIARY_STATUS = {
   POTENTIAL: 'POTENTIAL',
   ACTIVE: 'ACTIVE',
   GRADUATED: 'GRADUATED',
   SUSPENDED: 'SUSPENDED',
 };
+
+// Portuguese status filter as the data entered is in portuguese
+export const BENEFICIARY_STATUS_PT = {
+  POTENTIAL: 'POTENCIAL',
+  ACTIVE: 'ATIVO',
+  GRADUATED: 'GRADUADA',
+  SUSPENDED: 'SUSPENSA',
+};
+
+export const BENEFICIARY_STATUS_LIST_PT = [
+  BENEFICIARY_STATUS_PT.POTENTIAL, BENEFICIARY_STATUS_PT.ACTIVE, BENEFICIARY_STATUS_PT.GRADUATED, BENEFICIARY_STATUS_PT.SUSPENDED
+]
 
 export const DEFAULT_BENEFICIARY_STATUS = 'POTENTIAL';
 
@@ -82,6 +106,7 @@ export const RECIPIENT_TYPE_LIST = [
   RECIPIENT_TYPE.SECONDARY,
 ];
 
+export const SOCIAL_PROTECTION_MODULE_NAME = 'social_protection';
 export const BENEFIT_PLAN_LABEL = 'BenefitPlan';
 export const INDIVIDUAL_LABEL = 'Individual';
 export const GROUP_LABEL = 'Group';

@@ -21,12 +21,16 @@ export const ACTION_TYPE = {
   SEARCH_GROUP_INDIVIDUALS: 'GROUP_INDIVIDUAL_GROUP_INDIVIDUALS',
   SEARCH_GROUPS: 'GROUP_GROUPS',
   GET_INDIVIDUAL: 'INDIVIDUAL_INDIVIDUAL',
+  GET_INDIVIDUAL_DISTRICTS: "GET_INDIVIDUAL_DISTRICTS",
+  GET_INDIVIDUAL_SUB_DISTRICTS: "GET_INDIVIDUAL_SUB_DISTRICTS",
   GET_GROUP: 'GROUP_GROUP',
   DELETE_INDIVIDUAL: 'INDIVIDUAL_DELETE_INDIVIDUAL',
   UNDO_DELETE_INDIVIDUAL: 'INDIVIDUAL_UNDO_DELETE_INDIVIDUAL',
   DELETE_GROUP_INDIVIDUAL: 'GROUP_INDIVIDUAL_DELETE_GROUP_INDIVIDUAL',
   DELETE_GROUP: 'GROUP_DELETE_GROUP',
   UPDATE_INDIVIDUAL: 'INDIVIDUAL_UPDATE_INDIVIDUAL',
+  CREATE_INDIVIDUAL_PHOTO: "INDIVIDUAL_CREATE_INDIVIDUAL_PHOTO",
+  UPDATE_INDIVIDUAL_PHOTO: "INDIVIDUAL_UPDATE_INDIVIDUAL_PHOTO",
   UPDATE_GROUP_INDIVIDUAL: 'GROUP_INDIVIDUAL_UPDATE_GROUP_INDIVIDUAL',
   CREATE_GROUP_INDIVIDUAL: 'GROUP_INDIVIDUAL_CREATE_GROUP_INDIVIDUAL',
   UPDATE_GROUP: 'GROUP_UPDATE_GROUP',
@@ -144,6 +148,22 @@ function reducer(
   action,
 ) {
   switch (action.type) {
+    case REQUEST(ACTION_TYPE.GET_INDIVIDUAL_DISTRICTS):
+      return {
+        ...state,
+        fetchingIndividualDistricts: false,
+        fetchedIndividualDistricts: false,
+        individualDistricts: [],
+        errorIndividualDistricts: null,
+      };
+    case REQUEST(ACTION_TYPE.GET_INDIVIDUAL_SUB_DISTRICTS):
+      return {
+        ...state,
+        fetchIndividualSubDistricts: false,
+        fetchedIndividualSubDistricts: false,
+        individualSubDistricts: [],
+        errorIndividualSubDistricts: null,
+      };
     case REQUEST(ACTION_TYPE.SEARCH_INDIVIDUALS):
       return {
         ...state,
@@ -218,6 +238,22 @@ function reducer(
         fetchedPendingGroups: false,
         errorPendingGroups: null,
       };
+    case SUCCESS(ACTION_TYPE.GET_INDIVIDUAL_DISTRICTS):
+      return {
+        ...state,
+        fetchingIndividualDistricts: false,
+        fetchedIndividualDistricts: true,
+        individualDistricts: action.payload?.data?.individual?.edges ?? [],
+        errorIndividualDistricts: formatGraphQLError(action.payload),
+      };
+    case SUCCESS(ACTION_TYPE.GET_INDIVIDUAL_SUB_DISTRICTS):
+      return {
+        ...state,
+        fetchIndividualSubDistricts: false,
+        fetchedIndividualSubDistricts: true,
+        individualSubDistricts: action.payload?.data?.individual?.edges ?? [],
+        errorIndividualSubDistricts: formatGraphQLError(action.payload),
+      };
     case SUCCESS(ACTION_TYPE.GET_PENDING_GROUPS_UPLOAD):
       return {
         ...state,
@@ -235,10 +271,22 @@ function reducer(
         ...state,
         fetchingIndividuals: false,
         fetchedIndividuals: true,
-        individuals: parseData(action.payload.data.individual)?.map((individual) => ({
-          ...individual,
-          id: decodeId(individual.id),
-        })),
+        individuals: parseData(action.payload.data.individual)?.map((individual) => {
+          // Parse the jsonExt property if it exists and is a valid JSON string
+          let jsonExtParsed = null;
+          try {
+            jsonExtParsed = individual.jsonExt ? JSON.parse(individual.jsonExt) : null;
+          } catch (error) {
+            console.error('Error parsing jsonExt:', error);
+            jsonExtParsed = null; // Set to null or handle the error as needed
+          }
+          
+          return {
+            ...individual,
+            id: decodeId(individual.id),
+            jsonExt: jsonExtParsed, // Replace stringified JSON with the parsed object
+          };
+        }),
         individualsPageInfo: pageInfo(action.payload.data.individual),
         individualsTotalCount: action.payload.data.individual ? action.payload.data.individual.totalCount : null,
         errorIndividuals: formatGraphQLError(action.payload),
@@ -292,10 +340,46 @@ function reducer(
         ...state,
         fetchingGroups: false,
         fetchedGroups: true,
-        groups: parseData(action.payload.data.group)?.map((group) => ({
-          ...group,
-          id: decodeId(group.id),
-        })),
+        groups: parseData(action.payload.data.group)?.map((group) => {
+          // Initialize headJsonExtParsed as null
+          let jsonExtParsed = null;
+          let headJsonExtParsed = null;
+
+          // Check if group and group.jsonExt exist
+          if (group && group.jsonExt) {
+            try {
+              // Parse the stringified JSON in group.jsonExt
+              jsonExtParsed = JSON.parse(group.jsonExt);
+            } catch (error) {
+              console.error('Error parsing group.jsonExt:', error);
+              // Handle parse error, e.g., log it or set to null
+              jsonExtParsed = null;
+            }
+
+            // Check if group.head and group.head.jsonExt exist
+            if (group.head && group.head.jsonExt) {
+              try {
+                // Parse the stringified JSON in group.head.jsonExt
+                headJsonExtParsed = JSON.parse(group.head.jsonExt);
+              } catch (error) {
+                console.error('Error parsing group.head.jsonExt:', error);
+                // Handle parse error, e.g., log it or set to null
+                headJsonExtParsed = null;
+              }
+            }
+          }
+
+          // Return the modified group object
+          return {
+            ...group,
+            id: decodeId(group.id),
+            jsonExt: jsonExtParsed, // Replace stringified JSON with parsed object
+            head: { 
+              ...group.head, 
+              jsonExt: headJsonExtParsed // Replace stringified JSON in head with parsed object
+            }
+          };
+        }),
         groupsPageInfo: pageInfo(action.payload.data.group),
         groupsTotalCount: action.payload.data.group ? action.payload.data.group.totalCount : null,
         errorGroups: formatGraphQLError(action.payload),
@@ -335,6 +419,20 @@ function reducer(
           id: decodeId(group.id),
         }))?.[0],
         errorGroup: null,
+      };
+    case ERROR(ACTION_TYPE.GET_INDIVIDUAL_DISTRICTS):
+      return {
+        ...state,
+        fetchingIndividualDistricts: false,
+        fetchedIndividualDistricts: false,
+        errorIndividualDistricts: formatServerError(action.payload),
+      };
+    case ERROR(ACTION_TYPE.GET_INDIVIDUAL_SUB_DISTRICTS):
+      return {
+        ...state,
+        fetchIndividualSubDistricts: false,
+        fetchedIndividualSubDistricts: false,
+        errorIndividualSubDistricts: formatServerError(action.payload),
       };
     case ERROR(ACTION_TYPE.SEARCH_INDIVIDUALS):
       return {

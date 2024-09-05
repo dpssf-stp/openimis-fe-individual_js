@@ -77,7 +77,7 @@ const GROUP_FULL_PROJECTION = [
   'id',
   'code',
   'isDeleted',
-  'head {firstName, lastName, uuid}',
+  'head {firstName, lastName, dob, uuid, jsonExt}',
   'dateCreated',
   'dateUpdated',
   'jsonExt',
@@ -131,6 +131,28 @@ export function fetchGroupEnrollmentSummary(params) {
 export function fetchIndividuals(params) {
   const payload = formatPageQueryWithCount('individual', params, INDIVIDUAL_FULL_PROJECTION);
   return graphql(payload, ACTION_TYPE.SEARCH_INDIVIDUALS);
+}
+
+// fetch the individual districts on type
+export function fetchIndividualDistricts() {
+  
+  const payload = formatPageQuery('individual', ['uniqueFields: ["district"]'], ['district']);
+  return graphql(payload, ACTION_TYPE.GET_INDIVIDUAL_DISTRICTS);
+}
+
+// fetch the individual sub-districts on type
+export function fetchIndividualSubDistricts() {
+  const payload = formatPageQuery('individual', ['uniqueFields: ["sub_district"]'], ['subDistrict']);
+  return graphql
+  (payload, ACTION_TYPE.GET_INDIVIDUAL_SUB_DISTRICTS);
+}
+
+export function createUpdateIndividualPhoto(photo, clientMutationLabel) {
+  if (photo?.id) {
+    let resp = updateIndividualPhoto(photo, clientMutationLabel);
+    console.log(resp);
+    return resp;
+  }
 }
 
 export function fetchGroupIndividuals(params) {
@@ -296,6 +318,21 @@ export function updateIndividual(individual, clientMutationLabel) {
     [REQUEST(ACTION_TYPE.MUTATION), SUCCESS(ACTION_TYPE.UPDATE_INDIVIDUAL), ERROR(ACTION_TYPE.MUTATION)],
     {
       actionType: ACTION_TYPE.UPDATE_INDIVIDUAL,
+      clientMutationId: mutation.clientMutationId,
+      clientMutationLabel,
+      requestedDateTime,
+    },
+  );
+}
+
+export function updateIndividualPhoto(photo, clientMutationLabel) {
+  const mutation = formatMutation('updateIndividualPhoto', formatIndividualPhotoGQL(photo), clientMutationLabel);
+  const requestedDateTime = new Date();
+  return graphql(
+    mutation.payload,
+    [REQUEST(ACTION_TYPE.MUTATION), SUCCESS(ACTION_TYPE.UPDATE_INDIVIDUAL_PHOTO), ERROR(ACTION_TYPE.MUTATION)],
+    {
+      actionType: ACTION_TYPE.UPDATE_INDIVIDUAL_PHOTO,
       clientMutationId: mutation.clientMutationId,
       clientMutationLabel,
       requestedDateTime,

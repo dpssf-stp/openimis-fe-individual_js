@@ -11,7 +11,6 @@ import {
   coreConfirm,
   clearConfirm,
   journalize,
-  decodeId,
 } from '@openimis/fe-core';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -20,23 +19,19 @@ import {
   Dialog,
   DialogActions,
   DialogTitle,
-  DialogContent,
 } from '@material-ui/core';
-import EditIcon from '@material-ui/icons/Edit';
-import DeleteIcon from '@material-ui/icons/Delete';
 import {
   deleteGroup, downloadGroups, fetchGroups, clearGroupExport,
 } from '../actions';
 import {
   DEFAULT_PAGE_SIZE,
   ROWS_PER_PAGE_OPTIONS,
-  RIGHT_GROUP_UPDATE, RIGHT_GROUP_DELETE, INDIVIDUAL_MODULE_NAME, INDIVIDUAL_LABEL,
-  INDIVIDUAL_GROUP_MENU_CONTRIBUTION_KEY,
+  RIGHT_GROUP_UPDATE, RIGHT_GROUP_DELETE, SOCIAL_PROTECTION_MODULE_NAME, BENEFIT_PLAN_LABEL,
 } from '../constants';
 import GroupFilter from './GroupFilter';
 import { applyNumberCircle } from '../util/searcher-utils';
 
-function GroupSearcher({
+function GroupSearcherForEntities({
   intl,
   modulesManager,
   history,
@@ -55,14 +50,14 @@ function GroupSearcher({
   confirmed,
   submittingMutation,
   clearGroupExport,
-  isModalEnrollment,
   mutation,
   coreConfirm,
   clearConfirm,
   journalize,
   CLEARED_STATE_FILTER,
-  benefitPlanToEnroll,
-  advancedCriteria,
+  individualId,
+  groupId,
+  enableFilter=true,
 }) {
   const [groupToDelete, setGroupToDelete] = useState(null);
   const [deletedGroupUuids, setDeletedGroupUuids] = useState([]);
@@ -115,18 +110,20 @@ function GroupSearcher({
     prevSubmittingMutationRef.current = submittingMutation;
   });
 
-  const fetch = (params) => fetchGroups(params);
+  const fetch = (params) => {
+    if (individualId) {
+        params.push(`individualId: "${individualId}"`)
+    }
+    if (groupId) {
+        params.push(`groupId: "${groupId}"`)
+    }
+    fetchGroups(params);
+  }
 
   const headers = () => {
     const headers = [
       'group.code',
       'group.head',
-      'group.nickname',
-      'group.district',
-      'group.subDistrict',
-      'group.idNumber',
-      'group.dob',
-      'group.sex'
     ];
     if (rights.includes(RIGHT_GROUP_UPDATE)) {
       headers.push('emptyLabel');
@@ -137,89 +134,32 @@ function GroupSearcher({
   const itemFormatters = () => {
     const formatters = [
       (group) => group.code,
-      (group) => (group?.head?.jsonExt
-        ? `${group?.head?.jsonExt?.nome}`
+      (group) => (group?.head
+        ? `${group?.head?.fullname}`
         : formatMessage(intl, 'group', 'noHeadSpecified')),
-      (group) => (group?.head?.jsonExt
-        ? `${group?.head?.jsonExt?.vulgo}`
-        : formatMessage(intl, 'group', 'emptyLabel')),
-      (group) => (group?.head?.jsonExt
-        ? `${group?.head?.jsonExt?.distrito}`
-        : formatMessage(intl, 'group', 'emptyLabel')),
-      (group) => (group?.head?.jsonExt
-        ? `${group?.head?.jsonExt?.subdistrito}`
-        : formatMessage(intl, 'group', 'emptyLabel')),
-      (group) => (group?.head?.jsonExt
-        ? `${group?.head?.jsonExt?.num_doc_id}`
-        : formatMessage(intl, 'group', 'emptyLabel')),
-      (group) => (group?.head?.dob
-        ? `${group?.head?.dob}`
-        : formatMessage(intl, 'group', 'emptyLabel')),
-      (group) => (group?.head?.jsonExt
-        ? `${group?.head?.jsonExt?.sexo}`
-        : formatMessage(intl, 'group', 'emptyLabel')),
     ];
-    if (rights.includes(RIGHT_GROUP_UPDATE) && isModalEnrollment === false) {
-      formatters.push((group) => (
-        <Tooltip title={formatMessage(intl, 'individual', 'editButtonTooltip')}>
-          <IconButton
-            href={groupUpdatePageUrl(group)}
-            onClick={(e) => e.stopPropagation() && onDoubleClick(group)}
-          >
-            <EditIcon />
-          </IconButton>
-        </Tooltip>
-      ));
-    }
-    if (rights.includes(RIGHT_GROUP_DELETE) && isModalEnrollment === false) {
-      formatters.push((group) => (
-        <Tooltip title={formatMessage(intl, 'individual', 'deleteButtonTooltip')}>
-          <IconButton
-            onClick={() => onDelete(group)}
-            disabled={deletedGroupUuids.includes(group.id)}
-          >
-            <DeleteIcon />
-          </IconButton>
-        </Tooltip>
-      ));
-    }
     return formatters;
   };
 
   const rowIdentifier = (group) => group.id;
 
   const sorts = () => [
-    ['id', false],
+    ['code', false],
   ];
 
   const isRowDisabled = (_, group) => deletedGroupUuids.includes(group.id);
 
-  const defaultFilters = () => {
-    const filters = {
-      isDeleted: {
-        value: false,
-        filter: 'isDeleted: false',
-      },
-    };
-    if (isModalEnrollment && advancedCriteria !== null && advancedCriteria !== undefined) {
-      filters.customFilters = {
-        value: advancedCriteria,
-        filter: `customFilters: [${advancedCriteria}]`,
-      };
-      filters.benefitPlanToEnroll = {
-        value: benefitPlanToEnroll,
-        filter: `benefitPlanToEnroll: "${decodeId(benefitPlanToEnroll)}"`,
-      };
-    }
-    return filters;
-  };
+  const defaultFilters = () => ({
+    isDeleted: {
+      value: false,
+      filter: 'isDeleted: false',
+    },
+  });
 
   const [failedExport, setFailedExport] = useState(false);
 
   useEffect(() => {
-    if (errorGroupExport) {
-      setFailedExport(true);
-    }
+    setFailedExport(true);
   }, [errorGroupExport]);
 
   useEffect(() => {
@@ -227,8 +167,6 @@ function GroupSearcher({
       downloadExport(groupExport, `${formatMessage(intl, 'individual', 'export.filename.groups')}.csv`)();
       clearGroupExport();
     }
-
-    return setFailedExport(false);
   }, [groupExport]);
 
   const groupFilter = (props) => (
@@ -244,7 +182,7 @@ function GroupSearcher({
     <div>
       <Searcher
         module="individual"
-        FilterPane={groupFilter}
+        FilterPane={enableFilter && groupFilter}
         fetch={fetch}
         items={groups}
         itemsPageInfo={groupsPageInfo}
@@ -266,18 +204,18 @@ function GroupSearcher({
         exportable
         exportFetch={downloadGroups}
         exportFields={[
-          'id',
+          'code',
           'json_ext', // Unfolded by backend and removed from csv
         ]}
         exportFieldsColumns={{
-          id: 'ID',
+          code: 'ID',
         }}
         exportFieldLabel={formatMessage(intl, 'individual', 'export.label')}
         cacheFiltersKey="groupsFilterCache"
         resetFiltersOnUnmount
         isCustomFiltering
-        moduleName={INDIVIDUAL_MODULE_NAME}
-        objectType={INDIVIDUAL_LABEL}
+        moduleName={SOCIAL_PROTECTION_MODULE_NAME}
+        objectType={BENEFIT_PLAN_LABEL}
         additionalCustomFilterParams={{ type: 'GROUP' }}
         appliedCustomFilters={appliedCustomFilters}
         setAppliedCustomFilters={setAppliedCustomFilters}
@@ -286,20 +224,12 @@ function GroupSearcher({
         applyNumberCircle={applyNumberCircle}
         rowDisabled={isRowDisabled}
         rowLocked={isRowDisabled}
-        // eslint-disable-next-line react/jsx-props-no-spreading, max-len
-        {...(isModalEnrollment === false ? {
-          actionsContributionKey: INDIVIDUAL_GROUP_MENU_CONTRIBUTION_KEY, isCustomFiltering: true,
-        } : { isCustomFiltering: false })}
       />
       {failedExport && (
-        <Dialog open={failedExport} fullWidth maxWidth="sm">
-          <DialogTitle>{errorGroupExport?.message}</DialogTitle>
-          <DialogContent>
-            <strong>{`${errorGroupExport?.code}: `}</strong>
-            {errorGroupExport?.detail}
-          </DialogContent>
+        <Dialog fullWidth maxWidth="sm">
+          <DialogTitle>{errorGroupExport}</DialogTitle>
           <DialogActions>
-            <Button onClick={() => setFailedExport(false)} color="primary" variant="contained">
+            <Button onClick={setFailedExport(false)} variant="contained">
               {formatMessage(intl, 'individual', 'ok')}
             </Button>
           </DialogActions>
@@ -341,5 +271,5 @@ const mapDispatchToProps = (dispatch) => bindActionCreators(
 );
 
 export default withHistory(
-  withModulesManager(injectIntl(connect(mapStateToProps, mapDispatchToProps)(GroupSearcher))),
+  withModulesManager(injectIntl(connect(mapStateToProps, mapDispatchToProps)(GroupSearcherForEntities))),
 );

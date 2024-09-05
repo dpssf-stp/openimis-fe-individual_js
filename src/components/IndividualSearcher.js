@@ -187,9 +187,12 @@ function IndividualSearcher({
 
   const headers = () => {
     const headers = [
-      'individual.firstName',
-      'individual.lastName',
+      'individual.jsonExt.fullname',
+      'individual.jsonExt.nickname',
+      'individual.jsonExt.idNumber',
       'individual.dob',
+      'individual.jsonExt.district',
+      'individual.jsonExt.subDistrict',
     ];
     if (rights.includes(RIGHT_INDIVIDUAL_UPDATE)) {
       headers.push('emptyLabel');
@@ -202,9 +205,12 @@ function IndividualSearcher({
 
   const itemFormatters = () => {
     const formatters = [
-      (individual) => individual.firstName,
-      (individual) => individual.lastName,
+      (individual) => individual.jsonExt.nome,
+      (individual) => individual.jsonExt.vulgo,
+      (individual) => individual.jsonExt.num_doc_id,
       (individual) => (individual.dob ? formatDateFromISO(modulesManager, intl, individual.dob) : EMPTY_STRING),
+      (individual) => individual.jsonExt.distrito,
+      (individual) => individual.jsonExt.subdistrito,
     ];
     if (rights.includes(RIGHT_INDIVIDUAL_UPDATE) && isModalEnrollment === false) {
       formatters.push((individual) => (
@@ -246,8 +252,11 @@ function IndividualSearcher({
   const rowIdentifier = (individual) => individual.id;
 
   const sorts = () => [
-    ['firstName', true],
-    ['lastName', true],
+    ['jsonExt_Nome', true],
+    ['jsonExt_Vulgo', true],
+    ['jsonExt_NumDocId', true],
+    ['jsonExt_Distrito', true],
+    ['jsonExt_Subdistrito', true],
     ['dob', true],
   ];
 

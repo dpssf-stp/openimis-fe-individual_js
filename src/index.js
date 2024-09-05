@@ -22,6 +22,10 @@ import {
   IndividalTaskTabLabel,
   IndividalTaskTabPanel,
 } from './components/IndividualTaskTab';
+import {
+  GroupListTabLabel,
+  GroupListTabPanel
+} from './components/GroupListTab';
 import getBenefitPlansListTab from './contributions/getBenefitPlansListTab';
 import GroupIndividualSearcher from './components/GroupIndividualSearcher';
 import { clearIndividualExport, downloadIndividuals, fetchIndividuals } from './actions';
@@ -46,6 +50,7 @@ import {
 } from './constants';
 import { GroupCreateTaskItemFormatters, GroupCreateTaskTableHeaders } from './components/tasks/GroupCreateTasks';
 import IndividualsUploadDialog from './components/dialogs/IndividualsUploadDialog';
+import IndividualPhotoPicker from './components/IndividualPhotoPicker.js';
 import { BenefitsTabLabel, BenefitsTabPanel } from './components/BenefitsTab';
 import GroupIndividualHistorySearcher from './components/GroupIndividualHistorySearcher';
 import {
@@ -122,16 +127,19 @@ const DEFAULT_CONFIG = {
     { key: 'individual.IndividualHistorySearcher', ref: IndividualHistorySearcher },
     { key: 'individual.GroupHistorySearcher', ref: GroupHistorySearcher },
     { key: 'individual.IndividualsUploadDialog', ref: IndividualsUploadDialog },
+    { key: 'individual.IndividualPhotoPicker', ref: IndividualPhotoPicker},
     { key: 'individual.GroupIndividualHistorySearcher', ref: GroupIndividualHistorySearcher },
     { key: 'individual.AdvancedCriteriaRowValue', ref: AdvancedCriteriaRowValue },
     { key: 'individual.IndividualPicker', ref: IndividualPicker },
     { key: 'individual.group.GroupMenu', ref: GroupMenu },
   ],
   'individual.IndividualsUploadDialog': IndividualsUploadDialog,
+  'individual.IndividualPhotoPicker': IndividualPhotoPicker,
   'individual.group.GroupMenu': GroupMenu,
   'individual.TabPanel.label': [
     BenefitPlansListTabLabel,
     IndividalChangelogTabLabel,
+    GroupListTabLabel,
     IndividalTaskTabLabel,
     BenefitsTabLabel,
     GroupIndividualHistoryTabLabel,
@@ -139,6 +147,7 @@ const DEFAULT_CONFIG = {
   'individual.TabPanel.panel': [
     BenefitPlansListTabPanel,
     IndividalChangelogTabPanel,
+    GroupListTabPanel,
     IndividalTaskTabPanel,
     BenefitsTabPanel,
     GroupIndividualHistoryTabPanel,
