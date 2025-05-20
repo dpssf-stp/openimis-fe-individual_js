@@ -28,7 +28,11 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import UndoIcon from '@material-ui/icons/Undo';
 import {
-  fetchIndividuals, deleteIndividual, downloadIndividuals, clearIndividualExport, undoDeleteIndividual,
+  fetchIndividuals,
+  deleteIndividual,
+  downloadIndividuals,
+  clearIndividualExport,
+  undoDeleteIndividual,
 } from '../actions';
 import {
   DEFAULT_PAGE_SIZE,
@@ -42,8 +46,12 @@ import {
   INDIVIDUAL_LABEL,
   INDIVIDUALS_UPLOAD_FORM_CONTRIBUTION_KEY,
 } from '../constants';
-import { applyNumberCircle } from '../util/searcher-utils';
 import IndividualFilter from './IndividualFilter';
+import {
+  applyNumberCircle,
+  LOC_LEVELS,
+  locationAtLevel,
+} from '../util/searcher-utils';
 
 function IndividualSearcher({
   intl,
@@ -183,7 +191,7 @@ function IndividualSearcher({
     prevSubmittingMutationRef.current = submittingMutation;
   });
 
-  const fetch = (params) => fetchIndividuals(params);
+  const fetch = (params) => fetchIndividuals(modulesManager, params);
 
   const headers = () => {
     const headers = [
@@ -194,6 +202,9 @@ function IndividualSearcher({
       'individual.jsonExt.district',
       'individual.jsonExt.subDistrict',
     ];
+
+    // headers.push(...Array.from({ length: LOC_LEVELS }, (_, i) => `location.locationType.${i}`));
+
     if (rights.includes(RIGHT_INDIVIDUAL_UPDATE)) {
       headers.push('emptyLabel');
     }
@@ -212,6 +223,12 @@ function IndividualSearcher({
       (individual) => individual.jsonExt.distrito,
       (individual) => individual.jsonExt.subdistrito,
     ];
+
+    // const locations = Array.from({ length: LOC_LEVELS }, (_, i) => (group) => (
+    //   locationAtLevel(group.location, LOC_LEVELS - i - 1)
+    // ));
+    // formatters.push(...locations);
+
     if (rights.includes(RIGHT_INDIVIDUAL_UPDATE) && isModalEnrollment === false) {
       formatters.push((individual) => (
         <Tooltip title={formatMessage(intl, 'individual', 'editButtonTooltip')}>

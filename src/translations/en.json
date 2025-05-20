@@ -38,7 +38,10 @@
     "hasChild": "Has Child",
     "isIdProblem": "Is ID Problem",
     "selectPhotoLabel": "Select File",
+    "location": "Location",
+    "locationEditDisabledTitle": "Individual belongs to a group; Please edit location on their group",
     "isDeleted": "Show Deleted",
+    "hasNoLocation": "Missing Location",
     "addButtonTooltip": "Add Individual to Household",
     "jsonExt": {
       "fullname": "Fullname",
@@ -89,6 +92,8 @@
       "label": "Upload Individuals",
       "alert.sameFileName": "Filename exists for given Benefit Plan. Please change the filename.",
       "alert.header": "Error during file upload.",
+      "alert.header.invalid_format": "Invalid file format!",
+      "alert.message.invalid_format": "Please upload a valid CSV or Excel file!",
       "workflowPicker": "Workflow",
       "cancel": "Cancel",
       "template": "Template",
@@ -247,6 +252,7 @@
     "head": "Head",
     "primaryRecipient": "Primary Recipient",
     "secondaryRecipient": "Secondary Recipient",
+    "location": "Location",
     "dateUpdated": "Date Updated",
     "version": "Version",
     "any": "ANY",
@@ -350,6 +356,11 @@
     "ImportPage": "Import Data - API",
     "apiSelection": "Selected API",
     "workflowName": "Workflow Name",
-    "triggerImport": "Pull data"
+    "triggerImport": "Pull data",
+    "confirmPullingData": "Pulling Data from API",
+    "confirmPullingData.title": "Pulling Data from API",
+    "confirmPullingData.message": "Are you sure you want to confirm pulling data from selected API service?",
+    "confirmPullingData.cancel": "Cancel",
+    "confirmPullingData.confirm": "Confirm"
   }
 }

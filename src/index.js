@@ -101,18 +101,21 @@ const DEFAULT_CONFIG = {
       icon: <Person />,
       route: `/${ROUTE_INDIVIDUALS}`,
       filter: (rights) => rights.includes(RIGHT_INDIVIDUAL_SEARCH),
+      id: 'individual.individuals',
     },
     {
       text: <FormattedMessage module={INDIVIDUAL_MODULE_NAME} id="menu.groups" />,
       icon: <People />,
       route: `/${ROUTE_GROUPS}`,
       filter: (rights) => rights.includes(RIGHT_GROUP_SEARCH),
+      id: 'individual.groups',
     },
     {
       text: <FormattedMessage module={INDIVIDUAL_MODULE_NAME} id="menu.api" />,
       icon: <MenuIcon />,
       route: `/${ROUTE_API_IMPORTS}`,
       filter: (rights) => rights.includes(RIGHT_INDIVIDUAL_SEARCH),
+      id: 'individual.api_imports',
     },
   ],
   refs: [

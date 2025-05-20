@@ -34,7 +34,11 @@ import {
   INDIVIDUAL_GROUP_MENU_CONTRIBUTION_KEY,
 } from '../constants';
 import GroupFilter from './GroupFilter';
-import { applyNumberCircle } from '../util/searcher-utils';
+import {
+  applyNumberCircle,
+  LOC_LEVELS,
+  locationAtLevel,
+} from '../util/searcher-utils';
 
 function GroupSearcher({
   intl,
@@ -115,7 +119,7 @@ function GroupSearcher({
     prevSubmittingMutationRef.current = submittingMutation;
   });
 
-  const fetch = (params) => fetchGroups(params);
+  const fetch = (params) => fetchGroups(modulesManager, params);
 
   const headers = () => {
     const headers = [
@@ -128,6 +132,9 @@ function GroupSearcher({
       'group.dob',
       'group.sex'
     ];
+
+    // headers.push(...Array.from({ length: LOC_LEVELS }, (_, i) => `location.locationType.${i}`));
+
     if (rights.includes(RIGHT_GROUP_UPDATE)) {
       headers.push('emptyLabel');
     }
@@ -159,6 +166,12 @@ function GroupSearcher({
         ? `${group?.head?.jsonExt?.sexo}`
         : formatMessage(intl, 'group', 'emptyLabel')),
     ];
+
+    // const locations = Array.from({ length: LOC_LEVELS }, (_, i) => (group) => (
+    //   locationAtLevel(group.location, LOC_LEVELS - i - 1)
+    // ));
+    // formatters.push(...locations);
+
     if (rights.includes(RIGHT_GROUP_UPDATE) && isModalEnrollment === false) {
       formatters.push((group) => (
         <Tooltip title={formatMessage(intl, 'individual', 'editButtonTooltip')}>

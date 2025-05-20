@@ -56,6 +56,15 @@ function GroupFilter({
     ];
     onChangeFilters(filters);
   };
+  const filterFields = [
+    { name: 'code_Icontains', label: 'group.code' },
+    { name: 'firstName', label: 'group.individual.firstName' },
+    { name: 'lastName', label: 'group.individual.lastName' },
+  ];
+
+  const checkboxFields = [
+    { name: 'location_Isnull', label: 'hasNoLocation' },
+  ];
 
   return (
     <Grid container className={classes.form}>

@@ -23,38 +23,25 @@ import { fetchIndividualDistricts, fetchIndividualSubDistricts } from "../action
 function IndividualFilter({
   intl, classes, filters, onChangeFilters,
 }) {
-  const debouncedOnChangeFilters = _debounce(onChangeFilters, DEFAULT_DEBOUNCE_TIME);
+  const filterFields = [
+    { name: 'firstName', label: 'individual.firstName', lookup: CONTAINS_LOOKUP },
+    { name: 'lastName', label: 'individual.lastName', lookup: CONTAINS_LOOKUP },
+  ];
 
-  const filterValue = (k) => (!!filters && !!filters[k] ? filters[k].value : null);
+  const checkboxFields = [
+    { name: 'isDeleted', label: 'isDeleted' },
+    { name: 'location_Isnull', label: 'hasNoLocation' },
+  ];
 
+  const filterValue = (filterName) => filters?.[filterName]?.value;
   const filterTextFieldValue = (filterName) => filters?.[filterName]?.value ?? EMPTY_STRING;
-
-  const onChangeStringFilter = (filterName, lookup = null) => (value) => {
-    if (lookup) {
-      debouncedOnChangeFilters([
-        {
-          id: filterName,
-          value,
-          filter: `${filterName}_${lookup}: "${value}"`,
-        },
-      ]);
-    } else {
-      onChangeFilters([
-        {
-          id: filterName,
-          value,
-          filter: `${filterName}: "${value}"`,
-        },
-      ]);
-    }
-  };
-
-  const onChangeFilter = (k, v) => {
-    onChangeFilters([
+  
+  const onChangeStringFilter = (filterName) => (value) => {
+    debouncedOnChangeFilters([
       {
-        id: k,
-        value: v,
-        filter: `${k}: ${v}`,
+        id: filterName,
+        value,
+        filter: `${filterName}: "${value}"`,
       },
     ]);
   };

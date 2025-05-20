@@ -4,6 +4,7 @@ import {
   withModulesManager,
   FormPanel,
   TextInput,
+  formatMessage,
   FormattedMessage,
   PublishedComponent,
 } from '@openimis/fe-core';
@@ -22,10 +23,13 @@ const styles = (theme) => ({
 class IndividualHeadPanel extends FormPanel {
   render() {
     const {
-      edited, classes, mandatoryFieldsEmpty,
+      intl, edited, classes, mandatoryFieldsEmpty,
     } = this.props;
     const individual = { ...edited };
     const currentDate = new Date();
+    const locReadOnly = individual.groupindividuals?.edges?.length > 0;
+    const locTitle = locReadOnly ? formatMessage(intl, 'individual', 'individual.locationEditDisabledTitle') : '';
+
     const parseJsonExt = individual?.jsonExt ? JSON.parse(individual?.jsonExt) : null;
 
     return (
@@ -159,6 +163,18 @@ class IndividualHeadPanel extends FormPanel {
           <Grid item xs={3} className={classes.item}>
             <AdditionalFieldsDialog
               individualJsonExt={individual?.jsonExt}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <PublishedComponent
+              pubRef="location.DetailedLocation"
+              withNull
+              required={false}
+              readOnly={locReadOnly}
+              value={!edited ? null : edited.location}
+              onChange={(v) => this.updateAttribute('location', v)}
+              filterLabels={false}
+              title={locTitle}
             />
           </Grid>
         </Grid>

@@ -33,6 +33,7 @@ const styles = (theme) => ({
 
 function GroupPage({
   intl,
+  modulesManager,
   classes,
   rights,
   history,
@@ -63,7 +64,7 @@ function GroupPage({
 
   useEffect(() => {
     if (groupUuid) {
-      fetchGroup([`id: "${groupUuid}"`]);
+      fetchGroup(modulesManager, [`id: "${groupUuid}"`]);
     }
     return () => {
       clearGroup();
@@ -164,12 +165,13 @@ function GroupPage({
       doIt: openDeleteGroupConfirmDialog,
       icon: <DeleteIcon />,
       tooltip: formatMessage(intl, 'individual', 'deleteButtonTooltip'),
-    }, {
+    },
+    groupUuid && {
       doIt: setIsAddIndividualToGroupModalOpen,
       icon: <AddIcon />,
       tooltip: formatMessage(intl, 'individual', 'addButtonTooltip'),
     },
-  ];
+  ].filter(Boolean);
 
   const onAddIndividualConfirm = (individualToBeChanged) => {
     const addIndividualToGroup = {
@@ -190,13 +192,15 @@ function GroupPage({
 
   return (
     rights.includes(RIGHT_GROUP_SEARCH) && (
-    <div className={readOnly && !groupUuid ? classes.lockedPage : classes.page}>
-      <IndividualAddToGroupDialog
-        confirmState={isAddIndividualToGroupModalOpen}
-        onClose={() => setIsAddIndividualToGroupModalOpen(false)}
-        onConfirm={onAddIndividualConfirm}
-        setEditedGroupIndividual={setEditedGroupIndividual}
-      />
+    <div className={readOnly ? classes.lockedPage : classes.page}>
+      {groupUuid && (
+        <IndividualAddToGroupDialog
+          confirmState={isAddIndividualToGroupModalOpen}
+          onClose={() => setIsAddIndividualToGroupModalOpen(false)}
+          onConfirm={onAddIndividualConfirm}
+          setEditedGroupIndividual={setEditedGroupIndividual}
+        />
+      )}
       <Helmet title={formatMessageWithValues(intl, 'group', 'pageTitle', titleParams(group))} />
       <Form
         module="group"
@@ -219,7 +223,7 @@ function GroupPage({
         add={canAdd() ? handleSave : null}
         setEditedGroupIndividual={setEditedGroupIndividual}
         editedGroupIndividual={editedGroupIndividual}
-        readOnly={!!groupUuid}
+        readOnly={readOnly}
         groupIndividualIds={groupIndividualIds}
         groupId={groupUuid}
       />
