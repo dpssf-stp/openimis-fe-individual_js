@@ -37,6 +37,8 @@ function IndividualFilter({
   const filterTextFieldValue = (filterName) => filters?.[filterName]?.value ?? EMPTY_STRING;
   
   const onChangeStringFilter = (filterName) => (value) => {
+    const debouncedOnChangeFilters = _debounce(onChangeFilters, DEFAULT_DEBOUNCE_TIME);
+    
     debouncedOnChangeFilters([
       {
         id: filterName,
