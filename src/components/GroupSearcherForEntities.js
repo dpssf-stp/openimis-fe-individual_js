@@ -117,7 +117,7 @@ function GroupSearcherForEntities({
     if (groupId) {
         params.push(`groupId: "${groupId}"`)
     }
-    fetchGroups(params);
+    fetchGroups(modulesManager, params);
   }
 
   const headers = () => {
